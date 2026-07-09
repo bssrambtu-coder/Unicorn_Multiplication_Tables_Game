@@ -1,3 +1,3 @@
 # Unicorn Multiplication Tables Game
 
-A fun, interactive game to help kids learn multiplication tables.
+Learning multiplication tables made easy using gamification.
