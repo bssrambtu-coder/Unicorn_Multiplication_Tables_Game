@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Unicorn Times Tables 🦄</title>
+<meta name="description" content="A sparkly unicorn game to master multiplication tables 1–20!">
+<meta name="theme-color" content="#ffb8de">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#ff8fce; --pink-soft:#ffe3f2; --pink-mid:#ffb8de;
+  --lav:#a78bfa;  --lav-soft:#ece5ff;  --lav-mid:#c9b8ff;
+  --mint:#34d3a6; --mint-soft:#defbf0; --mint-mid:#a8ecd6;
+  --gold:#ffc94d; --gold-soft:#fff3d6;
+  --sky:#bfe3ff;  --text:#5b4a6e; --text-soft:#8a7ba1;
+  --good:#2fbf8f; --oops:#ff7eb0;
+  --card:#ffffff; --shadow:0 6px 0 rgba(91,74,110,.10), 0 12px 30px rgba(167,139,250,.18);
+  --radius:24px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0; color:var(--text);
+  font-family:'Nunito','Baloo 2','Comic Sans MS','Segoe UI',sans-serif;
+  font-weight:700; font-size:17px; line-height:1.35;
+  background:
+    radial-gradient(38rem 20rem at 110% -4rem, #ffe3f2 0%, transparent 60%),
+    radial-gradient(32rem 18rem at -10% 0%,  #ece5ff 0%, transparent 60%),
+    radial-gradient(30rem 16rem at 50% 110%, #defbf0 0%, transparent 65%),
+    linear-gradient(180deg,#f2f7ff 0%, #fdeffa 55%, #f2fcf8 100%);
+  min-height:100dvh; overscroll-behavior:none;
+}
+h1,h2,h3,.font-fun{font-family:'Baloo 2','Nunito','Comic Sans MS',sans-serif;}
+button{font:inherit; color:inherit; cursor:pointer; border:none; touch-action:manipulation;}
+button:disabled{cursor:default;}
+
+#app{max-width:640px; margin:0 auto; padding:12px 16px 32px; min-height:100dvh; display:flex; flex-direction:column;}
+
+/* ---------- Header ---------- */
+header{display:flex; align-items:center; gap:10px; padding:6px 0 12px;}
+.chip{
+  display:flex; align-items:center; gap:6px; background:var(--card);
+  border-radius:999px; padding:8px 14px; min-height:44px;
+  box-shadow:var(--shadow); font-family:'Baloo 2',sans-serif; font-size:1.05rem;
+}
+#btn-home{min-width:56px; min-height:56px; border-radius:20px; background:var(--card); box-shadow:var(--shadow); font-size:1.5rem;}
+#btn-home.hidden{visibility:hidden;}
+.spacer{flex:1;}
+#star-chip{color:#b7791f; background:linear-gradient(180deg,#fff8e8,#ffedbe);}
+#btn-mute{min-width:56px; min-height:56px; border-radius:20px; background:var(--card); box-shadow:var(--shadow); font-size:1.4rem;}
+
+/* ---------- Screens ---------- */
+.screen{display:none; flex:1; flex-direction:column;}
+.screen.active{display:flex; animation:screenIn .35s ease;}
+@keyframes screenIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+
+/* ---------- Home ---------- */
+.hero{text-align:center; margin:4px 0 10px;}
+.hero .mascot{font-size:4.2rem; display:inline-block; animation:floaty 3s ease-in-out infinite;}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-10px) rotate(4deg);}}
+.hero h1{margin:2px 0 0; font-size:2rem; line-height:1.1;
+  background:linear-gradient(90deg,#ff6fb7,#a78bfa,#22c1a3);
+  -webkit-background-clip:text; background-clip:text; color:transparent;}
+.hero p{margin:6px 0 0; color:var(--text-soft); font-size:1.05rem;}
+.big-btn{
+  display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+  min-height:60px; margin:8px 0; border-radius:var(--radius);
+  background:linear-gradient(180deg,#fff,#f4edff); box-shadow:var(--shadow);
+  font-family:'Baloo 2',sans-serif; font-size:1.25rem; color:var(--text);
+  transition:transform .12s ease;
+}
+.big-btn:active{transform:scale(.96);}
+.section-label{margin:14px 2px 8px; font-family:'Baloo 2',sans-serif; font-size:1.15rem; color:var(--text-soft);}
+#table-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+@media (min-width:480px){ #table-grid{grid-template-columns:repeat(5,1fr);} }
+.cloud-btn{
+  position:relative; min-height:64px; border-radius:22px;
+  background:linear-gradient(180deg,#ffffff,#eef4ff);
+  box-shadow:var(--shadow); font-family:'Baloo 2',sans-serif; font-size:1.5rem; color:var(--text);
+  transition:transform .12s ease;
+}
+.cloud-btn:active{transform:scale(.92);}
+.cloud-btn .crown{position:absolute; top:-9px; right:-4px; font-size:1rem;}
+.cloud-btn.mix{grid-column:span 2; background:linear-gradient(90deg,#ffe3f2,#ece5ff,#defbf0); font-size:1.15rem;}
+
+/* ---------- Question screens ---------- */
+.topbar{display:flex; align-items:center; gap:10px; margin-bottom:10px; font-family:'Baloo 2',sans-serif;}
+.pill{background:var(--card); border-radius:999px; padding:6px 14px; box-shadow:var(--shadow); font-size:1rem;}
+.pill.streak{background:linear-gradient(180deg,#fff2f9,#ffdff0); color:#d6338f;}
+.progress-track{flex:1; height:14px; background:#ffffffaa; border-radius:999px; overflow:hidden; box-shadow:inset 0 2px 4px rgba(91,74,110,.12);}
+.progress-fill{height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#ff8fce,#a78bfa); transition:width .3s ease;}
+.q-card{
+  background:var(--card); border-radius:28px; box-shadow:var(--shadow);
+  padding:26px 16px; text-align:center; margin-bottom:14px;
+}
+.q-text{font-family:'Baloo 2',sans-serif; font-size:2.7rem; letter-spacing:1px;}
+.q-text .qm{color:var(--lav);}
+.answers{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+.answer-btn{
+  min-height:72px; border-radius:24px; background:linear-gradient(180deg,#ffffff,#f2ecff);
+  box-shadow:var(--shadow); font-family:'Baloo 2',sans-serif; font-size:1.9rem; color:var(--text);
+  transition:transform .12s ease;
+}
+.answer-btn:active{transform:scale(.94);}
+.answer-btn.correct{background:linear-gradient(180deg,#e9fff6,#c2f5e2); color:#177a58; animation:pop .4s ease;}
+.answer-btn.wrong{background:linear-gradient(180deg,#fff0f6,#ffd9ea); color:#c02a72; animation:shake .4s ease;}
+.answer-btn.reveal{outline:4px dashed var(--mint); outline-offset:-4px;}
+@keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.12);}100%{transform:scale(1);}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.feedback{min-height:2.2em; text-align:center; margin-top:12px; font-size:1.15rem; font-family:'Baloo 2',sans-serif;}
+.feedback.good{color:var(--good);}
+.feedback.oops{color:#d6338f;}
+
+/* ---------- Race ---------- */
+.race-track{
+  position:relative; height:74px; margin:2px 0 12px; border-radius:20px; overflow:hidden;
+  background:linear-gradient(180deg,#dff1ff, #f3fbff); box-shadow:var(--shadow);
+}
+.rainbow-road{
+  position:absolute; left:0; right:0; bottom:10px; height:22px; border-radius:12px;
+  background:linear-gradient(180deg,#ff9aa2 0%,#ffd166 25%,#b5ead7 50%,#9ad0f5 75%,#cdb4f9 100%);
+  opacity:.9;
+}
+#race-unicorn{
+  position:absolute; bottom:16px; left:0; font-size:2.4rem;
+  transform:translateX(0) scaleX(-1); transition:transform .4s ease;
+  will-change:transform;
+}
+#race-unicorn.gallop{animation:gallop .5s ease infinite;}
+@keyframes gallop{0%,100%{bottom:16px;}50%{bottom:24px;}}
+.timer-track{height:16px; background:#ffffffaa; border-radius:999px; overflow:hidden; box-shadow:inset 0 2px 4px rgba(91,74,110,.12); flex:1;}
+.timer-fill{height:100%; width:100%; background:linear-gradient(90deg,#34d3a6,#ffc94d,#ff8fce); border-radius:999px;}
+
+/* ---------- Meadow ---------- */
+.meadow-summary{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; text-align:center; margin-bottom:14px;}
+.meadow-summary .bigpct{font-family:'Baloo 2',sans-serif; font-size:2rem; color:var(--lav);}
+#meadow-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.meadow-card{background:var(--card); border-radius:20px; box-shadow:var(--shadow); padding:12px;}
+.meadow-card h3{margin:0 0 4px; font-size:1.15rem;}
+.meadow-card .stars-line{color:#b7791f; font-size:.95rem; margin-bottom:6px;}
+.fact-dots{display:flex; flex-wrap:wrap; gap:3px; font-size:.8rem; letter-spacing:1px;}
+.fact-dots span{opacity:.35;}
+.fact-dots span.done{opacity:1;}
+.meadow-card.mastered{background:linear-gradient(180deg,#fff8e8,#ffedbe);}
+
+/* ---------- Overlays & modal ---------- */
+.overlay{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  background:rgba(91,74,110,.35); backdrop-filter:blur(3px); z-index:50; padding:20px;
+}
+.overlay.active{display:flex;}
+.overlay-card{
+  background:var(--card); border-radius:28px; box-shadow:var(--shadow);
+  max-width:420px; width:100%; padding:24px 20px; text-align:center; animation:popIn .3s ease;
+}
+@keyframes popIn{from{transform:scale(.85); opacity:0;} to{transform:scale(1); opacity:1;}}
+.overlay-card .big-emoji{font-size:3.6rem;}
+.overlay-card h2{margin:6px 0 4px; font-size:1.6rem;}
+.overlay-card p{margin:4px 0; color:var(--text-soft);}
+.overlay-card .stat{font-family:'Baloo 2',sans-serif; font-size:1.2rem; color:var(--text); margin:6px 0;}
+.newbest{display:inline-block; background:linear-gradient(90deg,#ffe3f2,#ece5ff); border-radius:999px; padding:6px 14px; color:#d6338f; font-family:'Baloo 2',sans-serif; margin-top:4px;}
+
+/* streak banner */
+#streak-banner{
+  position:fixed; top:14%; left:50%; transform:translateX(-50%) scale(0); z-index:60;
+  background:linear-gradient(90deg,#ff9aa2,#ffd166,#b5ead7,#9ad0f5,#cdb4f9);
+  color:#fff; text-shadow:0 2px 4px rgba(91,74,110,.4);
+  font-family:'Baloo 2',sans-serif; font-size:1.5rem; padding:14px 26px; border-radius:999px;
+  box-shadow:0 10px 30px rgba(167,139,250,.45); pointer-events:none; white-space:nowrap;
+}
+#streak-banner.show{animation:bannerPop 1.6s ease forwards;}
+@keyframes bannerPop{0%{transform:translateX(-50%) scale(0);}15%{transform:translateX(-50%) scale(1.1);}25%{transform:translateX(-50%) scale(1);}80%{transform:translateX(-50%) scale(1); opacity:1;}100%{transform:translateX(-50%) scale(.9); opacity:0;}}
+
+/* confetti sparkles */
+#confetti-layer{position:fixed; inset:0; pointer-events:none; z-index:70; overflow:hidden;}
+.sparkle{
+  position:absolute; font-size:1.4rem; animation:sparkleFly 1s ease-out forwards; will-change:transform,opacity;
+}
+@keyframes sparkleFly{
+  0%{transform:translate(0,0) scale(.6) rotate(0deg); opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(var(--rot)); opacity:0;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important; transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button id="btn-home" class="hidden" aria-label="Go home">🏠</button>
+    <div class="spacer"></div>
+    <div class="chip" id="star-chip">⭐ <span id="star-count">0</span></div>
+    <button id="btn-mute" aria-label="Toggle sound">🔊</button>
+  </header>
+
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="hero">
+      <span class="mascot">🦄</span>
+      <h1>Unicorn Times Tables</h1>
+      <p>Pick a table and let's gallop, little unicorn! 🌈</p>
+    </div>
+    <button class="big-btn" id="btn-meadow">🌸 Star Meadow — see your captured facts!</button>
+    <div class="section-label">✨ Choose your table</div>
+    <div id="table-grid"></div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section class="screen" id="screen-practice">
+    <div class="topbar">
+      <div class="pill" id="practice-count">Question 1 of 10</div>
+      <div class="progress-track"><div class="progress-fill" id="practice-progress"></div></div>
+      <div class="pill streak">✨ <span id="practice-streak">0</span></div>
+    </div>
+    <div class="q-card"><div class="q-text" id="practice-q">2 × 2 = <span class="qm">?</span></div></div>
+    <div class="answers" id="practice-answers"></div>
+    <div class="feedback" id="practice-feedback"></div>
+  </section>
+
+  <!-- RACE -->
+  <section class="screen" id="screen-race">
+    <div class="topbar">
+      <div class="pill">🏁 <span id="race-score">0</span></div>
+      <div class="timer-track"><div class="timer-fill" id="race-timer"></div></div>
+      <div class="pill streak">✨ <span id="race-streak">0</span></div>
+    </div>
+    <div class="race-track">
+      <div class="rainbow-road"></div>
+      <span id="race-unicorn">🦄</span>
+    </div>
+    <div class="q-card"><div class="q-text" id="race-q">2 × 2 = <span class="qm">?</span></div></div>
+    <div class="answers" id="race-answers"></div>
+    <div class="feedback" id="race-feedback"></div>
+  </section>
+
+  <!-- MEADOW -->
+  <section class="screen" id="screen-meadow">
+    <div class="hero" style="margin-bottom:4px;">
+      <span class="mascot" style="font-size:3rem;">🌸</span>
+      <h1 style="font-size:1.6rem;">Star Meadow</h1>
+      <p>Answer a fact right 3 times to capture its star!</p>
+    </div>
+    <div class="meadow-summary">
+      <div class="bigpct"><span id="meadow-pct">0%</span> of the meadow is sparkling!</div>
+      <div class="progress-track" style="margin-top:8px;"><div class="progress-fill" id="meadow-progress"></div></div>
+      <p style="margin-top:8px;"><span id="meadow-captured">0</span> / 200 facts captured ⭐ &nbsp;•&nbsp; Best streak: <span id="meadow-beststreak">0</span> ✨</p>
+    </div>
+    <div id="meadow-grid"></div>
+  </section>
+</div>
+
+<!-- Mode picker modal -->
+<div class="overlay" id="mode-modal">
+  <div class="overlay-card">
+    <div class="big-emoji">🦄</div>
+    <h2 id="mode-title">Table of 7</h2>
+    <p>How do you want to play?</p>
+    <button class="big-btn" id="btn-mode-practice">🌼 Practice — 10 cozy questions</button>
+    <button class="big-btn" id="btn-mode-race">🌈 Rainbow Race — 60 second dash!</button>
+    <button class="big-btn" id="btn-mode-cancel" style="min-height:52px; font-size:1rem;">Back</button>
+  </div>
+</div>
+
+<!-- Result overlay -->
+<div class="overlay" id="result-overlay">
+  <div class="overlay-card">
+    <div class="big-emoji" id="result-emoji">🦄</div>
+    <h2 id="result-title">Wonderful!</h2>
+    <p id="result-msg">You did it!</p>
+    <div class="stat" id="result-stats"></div>
+    <div id="result-newbest"></div>
+    <button class="big-btn" id="btn-play-again">🔁 Play again</button>
+    <button class="big-btn" id="btn-result-home">🏠 Home</button>
+  </div>
+</div>
+
+<div id="streak-banner">🌈 5 IN A ROW! MAGICAL! 🌈</div>
+<div id="confetti-layer"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   Unicorn Times Tables — plain JS, localStorage, Web Audio
+   ========================================================= */
+const $ = (id) => document.getElementById(id);
+const TABLES = 20, FACTS_PER_TABLE = 10, CAPTURE_AT = 3;
+
+/* ---------- State ---------- */
+const STORE_KEY = "unicornTablesV1";
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ const s = JSON.parse(raw); if(s && typeof s === "object") return Object.assign(defaultState(), s); }
+  }catch(e){ /* corrupted storage — start fresh */ }
+  return defaultState();
+}
+function defaultState(){
+  return { stars:0, bestStreak:0, muted:false, facts:{}, raceBest:{} };
+}
+const S = loadState();
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
+
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Sound (Web Audio, no files) ---------- */
+let audioCtx = null;
+function ctx(){
+  if(S.muted) return null;
+  if(!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return null;
+    audioCtx = new AC();
+  }
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq, start, dur, type, vol){
+  const c = ctx(); if(!c) return;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || "sine"; o.frequency.value = freq;
+  const t = c.currentTime + start;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.18, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+const sfx = {
+  click(){ tone(660, 0, .08, "triangle", .10); },
+  correct(){ tone(784, 0, .12, "sine", .16); tone(1175, .09, .18, "sine", .16); },
+  wrong(){ tone(330, 0, .18, "sine", .10); tone(262, .12, .22, "sine", .09); },
+  fanfare(){ [523,659,784,1047,1319].forEach((f,i)=>tone(f, i*.09, .22, "triangle", .15)); },
+  finish(){ [392,523,659,784].forEach((f,i)=>tone(f, i*.12, .25, "sine", .15)); }
+};
+
+/* ---------- Confetti sparkles ---------- */
+const SPARKLES = ["✨","⭐","🌟","💖","🌈","💜"];
+function confetti(n, originEl){
+  if(reducedMotion) return;
+  const layer = $("confetti-layer");
+  let cx = window.innerWidth/2, cy = window.innerHeight/2;
+  if(originEl){ const r = originEl.getBoundingClientRect(); cx = r.left + r.width/2; cy = r.top + r.height/2; }
+  for(let i=0;i<n;i++){
+    const s = document.createElement("span");
+    s.className = "sparkle";
+    s.textContent = SPARKLES[Math.floor(Math.random()*SPARKLES.length)];
+    s.style.left = cx + "px"; s.style.top = cy + "px";
+    s.style.setProperty("--dx", (Math.random()*260-130) + "px");
+    s.style.setProperty("--dy", (Math.random()*-220-40) + "px");
+    s.style.setProperty("--rot", (Math.random()*360-180) + "deg");
+    layer.appendChild(s);
+    setTimeout(()=>s.remove(), 1100);
+  }
+}
+
+/* ---------- Helpers ---------- */
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+function factKey(a,b){ return a+"x"+b; }
+function factCount(a,b){ return S.facts[factKey(a,b)] || 0; }
+function isCaptured(a,b){ return factCount(a,b) >= CAPTURE_AT; }
+function recordCorrect(a,b){
+  const k = factKey(a,b);
+  S.facts[k] = (S.facts[k]||0) + 1;
+  S.stars += 1;
+  save(); renderStars();
+}
+function renderStars(){ $("star-count").textContent = S.stars; }
+function updateBestStreak(streak){
+  if(streak > S.bestStreak){ S.bestStreak = streak; save(); }
+}
+function tableStars(t){
+  let n = 0;
+  for(let b=1;b<=FACTS_PER_TABLE;b++) if(isCaptured(t,b)) n++;
+  return n;
+}
+function totalCaptured(){
+  let n = 0;
+  for(let t=1;t<=TABLES;t++) n += tableStars(t);
+  return n;
+}
+
+/* Smart distractors: nearby multiples & common slips */
+function makeChoices(a,b){
+  const correct = a*b;
+  const pool = new Set();
+  [a*(b+1), a*(b-1), a*(b+2), a*(b-2), (a+1)*b, (a-1)*b,
+   correct+10, correct-10, correct+a, correct-a, correct+1, correct-1
+  ].forEach(v => { if(v > 0 && v !== correct) pool.add(v); });
+  const distractors = shuffle([...pool]).slice(0,3);
+  while(distractors.length < 3){ // safety net for tiny facts like 1×1
+    const v = correct + distractors.length + 2;
+    if(v !== correct && !distractors.includes(v)) distractors.push(v);
+  }
+  return shuffle([correct, ...distractors]);
+}
+
+/* Weakest-first question list for a table (spaced repetition across sessions) */
+function buildPracticeQueue(table){
+  const facts = [];
+  for(let b=1;b<=FACTS_PER_TABLE;b++){
+    const a = table === "mix" ? 1 + Math.floor(Math.random()*TABLES) : table;
+    facts.push({a, b, w: factCount(a,b) + Math.random()});
+  }
+  facts.sort((x,y)=>x.w - y.w); // least-practised facts first
+  return shuffle(facts.slice(0,6)).concat(shuffle(facts.slice(6))); // gently mixed
+}
+function randomRaceFact(key){
+  const a = key === "mix" ? 1 + Math.floor(Math.random()*TABLES) : key;
+  const b = 1 + Math.floor(Math.random()*FACTS_PER_TABLE);
+  return {a, b};
+}
+
+/* ---------- Navigation ---------- */
+const screens = ["screen-home","screen-practice","screen-race","screen-meadow"];
+function show(id){
+  screens.forEach(s => $(s).classList.toggle("active", s === id));
+  $("btn-home").classList.toggle("hidden", id === "screen-home");
+  window.scrollTo(0,0);
+}
+function goHome(){
+  stopRaceTimer();
+  hideOverlays();
+  show("screen-home");
+  renderHomeGrid();
+}
+function hideOverlays(){
+  $("mode-modal").classList.remove("active");
+  $("result-overlay").classList.remove("active");
+}
+
+/* ---------- Home ---------- */
+let pickedTable = null;
+function renderHomeGrid(){
+  const grid = $("table-grid");
+  grid.innerHTML = "";
+  for(let t=1;t<=TABLES;t++){
+    const btn = document.createElement("button");
+    btn.className = "cloud-btn";
+    btn.textContent = t;
+    if(tableStars(t) === FACTS_PER_TABLE){
+      const c = document.createElement("span"); c.className="crown"; c.textContent="👑";
+      btn.appendChild(c);
+    }
+    btn.addEventListener("click", ()=>{ sfx.click(); openModePicker(t); });
+    grid.appendChild(btn);
+  }
+  const mix = document.createElement("button");
+  mix.className = "cloud-btn mix";
+  mix.textContent = "🌈 Mix of everything!";
+  mix.addEventListener("click", ()=>{ sfx.click(); openModePicker("mix"); });
+  grid.appendChild(mix);
+}
+function openModePicker(t){
+  pickedTable = t;
+  $("mode-title").textContent = t === "mix" ? "Rainbow Mix 🌈" : "Table of " + t;
+  $("mode-modal").classList.add("active");
+}
+$("btn-mode-cancel").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); });
+$("btn-mode-practice").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); startPractice(pickedTable); });
+$("btn-mode-race").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); startRace(pickedTable); });
+
+/* ---------- Practice mode ---------- */
+const P = { queue:[], i:0, correct:0, streak:0, table:1, answered:false };
+function startPractice(table){
+  P.table = table;
+  P.queue = buildPracticeQueue(table);
+  P.i = 0; P.correct = 0; P.streak = 0;
+  show("screen-practice");
+  renderPracticeQ();
+}
+function renderPracticeQ(){
+  const q = P.queue[P.i];
+  P.answered = false;
+  $("practice-count").textContent = "Question " + (P.i+1) + " of " + P.queue.length;
+  $("practice-progress").style.width = (P.i / P.queue.length * 100) + "%";
+  $("practice-streak").textContent = P.streak;
+  $("practice-q").innerHTML = q.a + " × " + q.b + ' = <span class="qm">?</span>';
+  $("practice-feedback").textContent = "";
+  $("practice-feedback").className = "feedback";
+  const wrap = $("practice-answers");
+  wrap.innerHTML = "";
+  makeChoices(q.a, q.b).forEach(v => {
+    const btn = document.createElement("button");
+    btn.className = "answer-btn"; btn.textContent = v;
+    btn.addEventListener("click", ()=>answerPractice(q, v, btn));
+    wrap.appendChild(btn);
+  });
+}
+const ENCOURAGE = ["Sparkly! ✨","Magical! 🦄","Super! 🌟","Yes! 💖","Brilliant! 🌈","Whee! ⭐"];
+function answerPractice(q, v, btn){
+  if(P.answered) return;
+  P.answered = true;
+  const correct = q.a * q.b;
+  const buttons = [...$("practice-answers").children];
+  buttons.forEach(b => b.disabled = true);
+  if(v === correct){
+    btn.classList.add("correct");
+    P.correct++; P.streak++;
+    updateBestStreak(P.streak);
+    recordCorrect(q.a, q.b);
+    sfx.correct(); confetti(10, btn);
+    $("practice-feedback").textContent = ENCOURAGE[Math.floor(Math.random()*ENCOURAGE.length)] + " +1 ⭐";
+    $("practice-feedback").classList.add("good");
+    checkStreakParty(P.streak);
+    setTimeout(nextPractice, 900);
+  }else{
+    btn.classList.add("wrong");
+    buttons.find(b => Number(b.textContent) === correct).classList.add("reveal");
+    P.streak = 0;
+    sfx.wrong();
+    $("practice-feedback").textContent = "Almost! " + q.a + " × " + q.b + " = " + correct + " 💜 You'll get it!";
+    $("practice-feedback").classList.add("oops");
+    // spaced repetition inside the session: ask this fact again soon
+    if(P.i + 2 < P.queue.length) P.queue[P.i + 2] = {a:q.a, b:q.b};
+    else if(P.i + 1 < P.queue.length) P.queue[P.queue.length - 1] = {a:q.a, b:q.b};
+    setTimeout(nextPractice, 1900);
+  }
+}
+function nextPractice(){
+  P.i++;
+  if(P.i < P.queue.length){ renderPracticeQ(); }
+  else finishPractice();
+}
+function finishPractice(){
+  const total = P.queue.length;
+  let emoji = "🦄", title = "Great practicing!", msg = "The unicorn is proud of you! 💜";
+  if(P.correct === total){ emoji = "👑"; title = "PERFECT! 🌈"; msg = "Every single one right — pure unicorn magic!"; sfx.fanfare(); confetti(28); }
+  else if(P.correct >= total-2){ emoji = "🌟"; title = "Amazing!"; msg = "So close to perfect — keep sparkling!"; sfx.finish(); confetti(16); }
+  else if(P.correct >= total/2){ emoji = "🌈"; title = "Lovely galloping!"; msg = "You're getting stronger every time!"; sfx.finish(); }
+  showResult({
+    emoji, title, msg,
+    stats: "You got " + P.correct + " of " + total + " right • +" + P.correct + " ⭐",
+    newbest: "",
+    again: ()=>startPractice(P.table)
+  });
+}
+
+/* ---------- Rainbow Race ---------- */
+const RACE_SECONDS = 60, RACE_GOAL = 25;
+const R = { key:1, score:0, streak:0, endAt:0, timerId:null, answered:false, over:false };
+function startRace(key){
+  R.key = key; R.score = 0; R.streak = 0; R.over = false;
+  R.endAt = Date.now() + RACE_SECONDS*1000;
+  $("race-score").textContent = "0";
+  $("race-streak").textContent = "0";
+  moveUnicorn();
+  if(!reducedMotion) $("race-unicorn").classList.add("gallop");
+  show("screen-race");
+  renderRaceQ();
+  stopRaceTimer();
+  R.timerId = setInterval(tickRace, 100);
+}
+function stopRaceTimer(){ if(R.timerId){ clearInterval(R.timerId); R.timerId = null; } }
+function tickRace(){
+  const left = Math.max(0, R.endAt - Date.now());
+  $("race-timer").style.width = (left / (RACE_SECONDS*1000) * 100) + "%";
+  if(left <= 0) endRace();
+}
+function moveUnicorn(){
+  const track = document.querySelector(".race-track");
+  const maxX = Math.max(0, track.clientWidth - 56);
+  const x = Math.min(R.score, RACE_GOAL) / RACE_GOAL * maxX;
+  $("race-unicorn").style.transform = "translateX(" + x + "px) scaleX(-1)";
+}
+function renderRaceQ(){
+  if(R.over) return;
+  const q = randomRaceFact(R.key);
+  R.answered = false;
+  $("race-q").innerHTML = q.a + " × " + q.b + ' = <span class="qm">?</span>';
+  $("race-feedback").textContent = "";
+  $("race-feedback").className = "feedback";
+  const wrap = $("race-answers");
+  wrap.innerHTML = "";
+  makeChoices(q.a, q.b).forEach(v => {
+    const btn = document.createElement("button");
+    btn.className = "answer-btn"; btn.textContent = v;
+    btn.addEventListener("click", ()=>answerRace(q, v, btn));
+    wrap.appendChild(btn);
+  });
+}
+function answerRace(q, v, btn){
+  if(R.answered || R.over) return;
+  R.answered = true;
+  const correct = q.a * q.b;
+  const buttons = [...$("race-answers").children];
+  buttons.forEach(b => b.disabled = true);
+  if(v === correct){
+    btn.classList.add("correct");
+    R.score++; R.streak++;
+    updateBestStreak(R.streak);
+    recordCorrect(q.a, q.b);
+    $("race-score").textContent = R.score;
+    $("race-streak").textContent = R.streak;
+    moveUnicorn();
+    sfx.correct(); confetti(6, btn);
+    checkStreakParty(R.streak);
+    setTimeout(renderRaceQ, 350);
+  }else{
+    btn.classList.add("wrong");
+    buttons.find(b => Number(b.textContent) === correct).classList.add("reveal");
+    R.streak = 0;
+    $("race-streak").textContent = "0";
+    sfx.wrong();
+    $("race-feedback").textContent = q.a + " × " + q.b + " = " + correct + " 💜";
+    $("race-feedback").classList.add("oops");
+    setTimeout(renderRaceQ, 1000);
+  }
+}
+function endRace(){
+  if(R.over) return;
+  R.over = true;
+  stopRaceTimer();
+  $("race-unicorn").classList.remove("gallop");
+  const key = String(R.key);
+  const prev = S.raceBest[key] || 0;
+  const isNew = R.score > prev;
+  if(isNew){ S.raceBest[key] = R.score; save(); }
+  sfx.finish();
+  if(R.score > 0) confetti(20);
+  const label = R.key === "mix" ? "Rainbow Mix" : "Table of " + R.key;
+  showResult({
+    emoji: isNew && R.score > 0 ? "🏆" : "🦄",
+    title: R.score >= RACE_GOAL ? "Rainbow LEGEND!" : R.score >= 12 ? "Speedy sparkles!" : "Great galloping!",
+    msg: label + " — the unicorn loved that race! 💜",
+    stats: "Score: " + R.score + " • +" + R.score + " ⭐ • Best: " + Math.max(prev, R.score),
+    newbest: isNew && R.score > 0 ? "🌈 NEW PERSONAL BEST! 🌈" : "",
+    again: ()=>startRace(R.key)
+  });
+}
+
+/* ---------- Streak party ---------- */
+function checkStreakParty(streak){
+  if(streak > 0 && streak % 5 === 0){
+    const banner = $("streak-banner");
+    banner.textContent = "🌈 " + streak + " IN A ROW! MAGICAL! 🌈";
+    banner.classList.remove("show");
+    void banner.offsetWidth; // restart animation
+    banner.classList.add("show");
+    sfx.fanfare();
+    confetti(24);
+  }
+}
+
+/* ---------- Result overlay ---------- */
+let resultAgain = null;
+function showResult(o){
+  $("result-emoji").textContent = o.emoji;
+  $("result-title").textContent = o.title;
+  $("result-msg").textContent = o.msg;
+  $("result-stats").textContent = o.stats;
+  $("result-newbest").innerHTML = o.newbest ? '<div class="newbest">' + o.newbest + "</div>" : "";
+  resultAgain = o.again;
+  $("result-overlay").classList.add("active");
+}
+$("btn-play-again").addEventListener("click", ()=>{
+  sfx.click();
+  $("result-overlay").classList.remove("active");
+  if(resultAgain) resultAgain();
+});
+$("btn-result-home").addEventListener("click", ()=>{ sfx.click(); goHome(); });
+
+/* ---------- Star Meadow ---------- */
+function showMeadow(){
+  const captured = totalCaptured();
+  const totalFacts = TABLES * FACTS_PER_TABLE;
+  const pct = Math.round(captured / totalFacts * 100);
+  $("meadow-pct").textContent = pct + "%";
+  $("meadow-progress").style.width = pct + "%";
+  $("meadow-captured").textContent = captured;
+  $("meadow-beststreak").textContent = S.bestStreak;
+  const grid = $("meadow-grid");
+  grid.innerHTML = "";
+  for(let t=1;t<=TABLES;t++){
+    const stars = tableStars(t);
+    const card = document.createElement("div");
+    card.className = "meadow-card" + (stars === FACTS_PER_TABLE ? " mastered" : "");
+    const dots = [];
+    for(let b=1;b<=FACTS_PER_TABLE;b++){
+      dots.push('<span class="' + (isCaptured(t,b) ? "done" : "") + '">' + (isCaptured(t,b) ? "⭐" : "🔹") + "</span>");
+    }
+    card.innerHTML =
+      "<h3>Table of " + t + (stars === FACTS_PER_TABLE ? " 👑" : "") + "</h3>" +
+      '<div class="stars-line">' + stars + "/" + FACTS_PER_TABLE + " ⭐ captured</div>" +
+      '<div class="fact-dots">' + dots.join("") + "</div>";
+    grid.appendChild(card);
+  }
+  show("screen-meadow");
+}
+$("btn-meadow").addEventListener("click", ()=>{ sfx.click(); showMeadow(); });
+
+/* ---------- Header buttons ---------- */
+$("btn-home").addEventListener("click", ()=>{ sfx.click(); goHome(); });
+function renderMute(){ $("btn-mute").textContent = S.muted ? "🔇" : "🔊"; }
+$("btn-mute").addEventListener("click", ()=>{
+  S.muted = !S.muted; save(); renderMute();
+  if(!S.muted) sfx.click();
+});
+
+/* ---------- Boot ---------- */
+renderStars();
+renderMute();
+renderHomeGrid();
+window.addEventListener("resize", ()=>{ if($("screen-race").classList.contains("active")) moveUnicorn(); });
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
