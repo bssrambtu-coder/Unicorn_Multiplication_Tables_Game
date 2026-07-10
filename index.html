@@ -151,6 +151,42 @@ header{display:flex; align-items:center; gap:10px; padding:6px 0 12px;}
 .fact-dots span.done{opacity:1;}
 .meadow-card.mastered{background:linear-gradient(180deg,#fff8e8,#ffedbe);}
 
+/* ---------- Bubble Pop ---------- */
+.bubble-stage{
+  position:relative; flex:1; min-height:340px; margin:2px 0 12px; border-radius:24px; overflow:hidden;
+  background:linear-gradient(180deg,#e8f6ff 0%, #f3ecff 60%, #ffeef8 100%); box-shadow:var(--shadow);
+}
+.bubble{ position:absolute; bottom:-90px; animation:bubbleRise linear forwards; will-change:transform; }
+.bubble-inner{
+  width:70px; height:70px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Baloo 2',sans-serif; font-size:1.5rem; color:var(--text);
+  background:radial-gradient(circle at 32% 28%, #ffffff, #ffd9ef 62%, #ffb8de);
+  box-shadow:0 6px 14px rgba(167,139,250,.3), inset 0 -6px 10px rgba(255,255,255,.5);
+  transition:transform .1s ease;
+}
+.bubble-inner.v2{ background:radial-gradient(circle at 32% 28%, #ffffff, #d9ecff 62%, #bfe3ff); }
+.bubble-inner.v3{ background:radial-gradient(circle at 32% 28%, #ffffff, #dbfbee 62%, #a8ecd6); }
+.bubble-inner.v4{ background:radial-gradient(circle at 32% 28%, #ffffff, #ece5ff 62%, #c9b8ff); }
+.bubble-inner:active{ transform:scale(.9); }
+.bubble-inner.pop{ animation:bubblePop .32s ease forwards; }
+@keyframes bubbleRise{ from{transform:translateY(0);} to{transform:translateY(var(--rise,-500px));} }
+@keyframes bubblePop{ 0%{transform:scale(1); opacity:1;} 100%{transform:scale(1.7); opacity:0;} }
+
+/* ---------- Unicorn Ladder ---------- */
+.ladder-wrap{ display:flex; gap:14px; margin-bottom:12px; align-items:stretch; }
+.ladder{
+  position:relative; width:92px; flex:none; border-radius:20px;
+  background:linear-gradient(180deg,#eef6ff,#fbeefc); box-shadow:var(--shadow); overflow:hidden;
+}
+.ladder-goal{ position:absolute; top:6px; left:0; right:0; text-align:center; font-size:1.5rem; z-index:1; }
+.ladder-rungs{ position:absolute; left:0; right:0; top:44px; bottom:16px; display:flex; flex-direction:column-reverse; justify-content:space-between; align-items:center; }
+.rung{ width:60px; height:11px; border-radius:999px; background:#ede6ff; box-shadow:inset 0 1px 2px rgba(91,74,110,.15); opacity:.5; transition:opacity .3s, background .3s; }
+.rung.reached{ opacity:1; background:linear-gradient(90deg,#ffb8de,#c9b8ff); }
+.ladder-unicorn{ position:absolute; left:50%; transform:translateX(-50%); font-size:2rem; bottom:6%; transition:bottom .5s cubic-bezier(.34,1.56,.64,1); z-index:2; }
+.ladder-side{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+.ladder-hint{ font-family:'Baloo 2',sans-serif; color:var(--text-soft); text-align:center; margin-bottom:8px; font-size:.98rem; }
+
 /* ---------- Overlays & modal ---------- */
 .overlay{
   position:fixed; inset:0; display:none; align-items:center; justify-content:center;
@@ -160,6 +196,7 @@ header{display:flex; align-items:center; gap:10px; padding:6px 0 12px;}
 .overlay-card{
   background:var(--card); border-radius:28px; box-shadow:var(--shadow);
   max-width:420px; width:100%; padding:24px 20px; text-align:center; animation:popIn .3s ease;
+  max-height:92vh; overflow:auto;
 }
 @keyframes popIn{from{transform:scale(.85); opacity:0;} to{transform:scale(1); opacity:1;}}
 .overlay-card .big-emoji{font-size:3.6rem;}
@@ -243,6 +280,40 @@ header{display:flex; align-items:center; gap:10px; padding:6px 0 12px;}
     <div class="feedback" id="race-feedback"></div>
   </section>
 
+  <!-- BUBBLE POP -->
+  <section class="screen" id="screen-bubble">
+    <div class="topbar">
+      <div class="pill">🫧 <span id="bubble-score">0</span></div>
+      <div class="timer-track"><div class="timer-fill" id="bubble-timer"></div></div>
+      <div class="pill streak">✨ <span id="bubble-streak">0</span></div>
+    </div>
+    <div class="q-card" style="padding:16px 14px; margin-bottom:10px;"><div class="q-text" id="bubble-q" style="font-size:2.1rem;">2 × 2 = <span class="qm">?</span></div></div>
+    <div class="bubble-stage" id="bubble-stage"></div>
+    <div class="feedback" id="bubble-feedback"></div>
+  </section>
+
+  <!-- UNICORN LADDER -->
+  <section class="screen" id="screen-ladder">
+    <div class="topbar">
+      <div class="pill">🪜 <span id="ladder-rung">0</span>/8</div>
+      <div class="progress-track"><div class="progress-fill" id="ladder-progress"></div></div>
+      <div class="pill streak">✨ <span id="ladder-streak">0</span></div>
+    </div>
+    <div class="ladder-wrap">
+      <div class="ladder">
+        <div class="ladder-goal">🏰</div>
+        <div class="ladder-rungs" id="ladder-rungs"></div>
+        <span class="ladder-unicorn" id="ladder-unicorn">🦄</span>
+      </div>
+      <div class="ladder-side">
+        <div class="ladder-hint">Climb to the castle! 🏰<br>Each right answer = one step up.</div>
+        <div class="q-card" style="padding:18px 12px;"><div class="q-text" id="ladder-q" style="font-size:1.9rem;">2 × 2 = <span class="qm">?</span></div></div>
+      </div>
+    </div>
+    <div class="answers" id="ladder-answers"></div>
+    <div class="feedback" id="ladder-feedback"></div>
+  </section>
+
   <!-- MEADOW -->
   <section class="screen" id="screen-meadow">
     <div class="hero" style="margin-bottom:4px;">
@@ -267,6 +338,8 @@ header{display:flex; align-items:center; gap:10px; padding:6px 0 12px;}
     <p>How do you want to play?</p>
     <button class="big-btn" id="btn-mode-practice">🌼 Practice — 10 cozy questions</button>
     <button class="big-btn" id="btn-mode-race">🌈 Rainbow Race — 60 second dash!</button>
+    <button class="big-btn" id="btn-mode-bubble">🫧 Bubble Pop — pop the right answers!</button>
+    <button class="big-btn" id="btn-mode-ladder">🪜 Unicorn Ladder — climb to the castle!</button>
     <button class="big-btn" id="btn-mode-cancel" style="min-height:52px; font-size:1rem;">Back</button>
   </div>
 </div>
@@ -305,7 +378,7 @@ function loadState(){
   return defaultState();
 }
 function defaultState(){
-  return { stars:0, bestStreak:0, muted:false, facts:{}, raceBest:{} };
+  return { stars:0, bestStreak:0, muted:false, facts:{}, raceBest:{}, bubbleBest:{} };
 }
 const S = loadState();
 function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
@@ -424,7 +497,7 @@ function randomRaceFact(key){
 }
 
 /* ---------- Navigation ---------- */
-const screens = ["screen-home","screen-practice","screen-race","screen-meadow"];
+const screens = ["screen-home","screen-practice","screen-race","screen-bubble","screen-ladder","screen-meadow"];
 function show(id){
   screens.forEach(s => $(s).classList.toggle("active", s === id));
   $("btn-home").classList.toggle("hidden", id === "screen-home");
@@ -432,6 +505,7 @@ function show(id){
 }
 function goHome(){
   stopRaceTimer();
+  stopBubbleGame();
   hideOverlays();
   show("screen-home");
   renderHomeGrid();
@@ -471,6 +545,8 @@ function openModePicker(t){
 $("btn-mode-cancel").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); });
 $("btn-mode-practice").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); startPractice(pickedTable); });
 $("btn-mode-race").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); startRace(pickedTable); });
+$("btn-mode-bubble").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); startBubble(pickedTable); });
+$("btn-mode-ladder").addEventListener("click", ()=>{ sfx.click(); $("mode-modal").classList.remove("active"); startLadder(pickedTable); });
 
 /* ---------- Practice mode ---------- */
 const P = { queue:[], i:0, correct:0, streak:0, table:1, answered:false };
@@ -638,6 +714,211 @@ function endRace(){
     stats: "Score: " + R.score + " • +" + R.score + " ⭐ • Best: " + Math.max(prev, R.score),
     newbest: isNew && R.score > 0 ? "🌈 NEW PERSONAL BEST! 🌈" : "",
     again: ()=>startRace(R.key)
+  });
+}
+
+/* ---------- Bubble Pop ---------- */
+const BUBBLE_SECONDS = 60;
+const BUB = { key:1, score:0, streak:0, endAt:0, timerId:null, over:true,
+              waveId:0, live:0, answered:false, qa:1, qb:1, correctVal:4 };
+function startBubble(key){
+  BUB.key = key; BUB.score = 0; BUB.streak = 0; BUB.over = false; BUB.waveId = 0;
+  BUB.endAt = Date.now() + BUBBLE_SECONDS*1000;
+  $("bubble-score").textContent = "0";
+  $("bubble-streak").textContent = "0";
+  $("bubble-timer").style.width = "100%";
+  show("screen-bubble");
+  bubbleSpawnWave();
+  stopBubbleTimer();
+  BUB.timerId = setInterval(bubbleTick, 100);
+}
+function stopBubbleTimer(){ if(BUB.timerId){ clearInterval(BUB.timerId); BUB.timerId = null; } }
+function stopBubbleGame(){
+  BUB.over = true; stopBubbleTimer();
+  const stage = $("bubble-stage"); if(stage) stage.innerHTML = "";
+}
+function bubbleTick(){
+  const left = Math.max(0, BUB.endAt - Date.now());
+  $("bubble-timer").style.width = (left / (BUBBLE_SECONDS*1000) * 100) + "%";
+  if(left <= 0) endBubble();
+}
+function bubbleSpawnWave(){
+  if(BUB.over) return;
+  const stage = $("bubble-stage");
+  stage.querySelectorAll(".bubble").forEach(b => b.remove());
+  BUB.waveId++; BUB.answered = false; BUB.live = 0;
+  const wave = BUB.waveId;
+  const q = randomRaceFact(BUB.key);
+  BUB.qa = q.a; BUB.qb = q.b; BUB.correctVal = q.a * q.b;
+  $("bubble-q").innerHTML = q.a + " × " + q.b + ' = <span class="qm">?</span>';
+  $("bubble-feedback").textContent = "";
+  $("bubble-feedback").className = "feedback";
+  shuffle(makeChoices(q.a, q.b)).forEach((val, idx) => {
+    setTimeout(() => {
+      if(BUB.over || BUB.waveId !== wave) return;
+      bubbleCreate(val, wave);
+    }, idx * 520);
+  });
+}
+function bubbleCreate(val, wave){
+  const stage = $("bubble-stage");
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const bub = document.createElement("div");
+  bub.className = "bubble";
+  bub.style.left = (6 + Math.random() * Math.max(10, w - 82)) + "px";
+  bub.style.animationDuration = (4.6 + Math.random() * 2.4) + "s";
+  bub.style.setProperty("--rise", -(h + 110) + "px");
+  const inner = document.createElement("div");
+  inner.className = "bubble-inner v" + (1 + Math.floor(Math.random() * 4));
+  inner.textContent = val;
+  bub.appendChild(inner);
+  BUB.live++;
+  inner.addEventListener("click", () => bubbleTap(val, bub, inner, wave));
+  bub.addEventListener("animationend", () => {
+    if(bub._done) return;
+    bub._done = true; bub.remove();
+    if(BUB.waveId === wave && !BUB.answered && !BUB.over){
+      BUB.live--;
+      if(BUB.live <= 0) setTimeout(() => { if(BUB.waveId === wave && !BUB.over) bubbleSpawnWave(); }, 250);
+    }
+  });
+  stage.appendChild(bub);
+}
+function bubbleTap(val, bub, inner, wave){
+  if(BUB.over || BUB.waveId !== wave || bub._done) return;
+  if(val === BUB.correctVal){
+    bub._done = true; BUB.answered = true;
+    inner.classList.add("pop");
+    BUB.score++; BUB.streak++;
+    updateBestStreak(BUB.streak);
+    recordCorrect(BUB.qa, BUB.qb);
+    $("bubble-score").textContent = BUB.score;
+    $("bubble-streak").textContent = BUB.streak;
+    sfx.correct(); confetti(8, inner);
+    $("bubble-feedback").textContent = ENCOURAGE[Math.floor(Math.random()*ENCOURAGE.length)] + " +1 ⭐";
+    $("bubble-feedback").className = "feedback good";
+    checkStreakParty(BUB.streak);
+    const stage = $("bubble-stage");
+    stage.querySelectorAll(".bubble").forEach(b => { if(b !== bub){ b._done = true; b.remove(); } });
+    setTimeout(() => { bub.remove(); if(!BUB.over) bubbleSpawnWave(); }, 360);
+  }else{
+    bub._done = true;
+    inner.classList.add("pop");
+    BUB.streak = 0; $("bubble-streak").textContent = "0";
+    sfx.wrong();
+    $("bubble-feedback").textContent = "Not that one — pop " + BUB.correctVal + "! 💜";
+    $("bubble-feedback").className = "feedback oops";
+    setTimeout(() => bub.remove(), 300);
+    if(BUB.waveId === wave && !BUB.answered){
+      BUB.live--;
+      if(BUB.live <= 0) setTimeout(() => { if(BUB.waveId === wave && !BUB.over) bubbleSpawnWave(); }, 300);
+    }
+  }
+}
+function endBubble(){
+  if(BUB.over) return;
+  BUB.over = true; stopBubbleTimer();
+  $("bubble-stage").querySelectorAll(".bubble").forEach(b => b.remove());
+  const key = String(BUB.key);
+  const prev = S.bubbleBest[key] || 0;
+  const isNew = BUB.score > prev;
+  if(isNew){ S.bubbleBest[key] = BUB.score; save(); }
+  sfx.finish();
+  if(BUB.score > 0) confetti(20);
+  const label = BUB.key === "mix" ? "Rainbow Mix" : "Table of " + BUB.key;
+  showResult({
+    emoji: isNew && BUB.score > 0 ? "🏆" : "🫧",
+    title: BUB.score >= 20 ? "Bubble LEGEND!" : BUB.score >= 10 ? "Poppin' sparkles!" : "Great popping!",
+    msg: label + " — so many bubbles popped! 💜",
+    stats: "Popped: " + BUB.score + " • +" + BUB.score + " ⭐ • Best: " + Math.max(prev, BUB.score),
+    newbest: isNew && BUB.score > 0 ? "🌈 NEW PERSONAL BEST! 🌈" : "",
+    again: ()=>startBubble(BUB.key)
+  });
+}
+
+/* ---------- Unicorn Ladder ---------- */
+const LADDER_RUNGS = 8;
+const L = { key:1, rung:0, correct:0, asked:0, streak:0, answered:false, qa:1, qb:1 };
+function startLadder(key){
+  L.key = key; L.rung = 0; L.correct = 0; L.asked = 0; L.streak = 0;
+  buildLadderRungs();
+  paintLadder();
+  show("screen-ladder");
+  renderLadderQ();
+}
+function buildLadderRungs(){
+  const wrap = $("ladder-rungs");
+  wrap.innerHTML = "";
+  for(let i=0;i<LADDER_RUNGS;i++){
+    const r = document.createElement("div"); r.className = "rung"; wrap.appendChild(r);
+  }
+}
+function paintLadder(){
+  const rungs = $("ladder-rungs").children;
+  for(let i=0;i<rungs.length;i++) rungs[i].classList.toggle("reached", i < L.rung);
+  $("ladder-rung").textContent = L.rung;
+  $("ladder-streak").textContent = L.streak;
+  $("ladder-progress").style.width = (L.rung / LADDER_RUNGS * 100) + "%";
+  $("ladder-unicorn").style.bottom = (6 + L.rung / LADDER_RUNGS * 82) + "%";
+}
+function renderLadderQ(){
+  const q = randomRaceFact(L.key);
+  L.qa = q.a; L.qb = q.b; L.answered = false;
+  $("ladder-q").innerHTML = q.a + " × " + q.b + ' = <span class="qm">?</span>';
+  $("ladder-feedback").textContent = "";
+  $("ladder-feedback").className = "feedback";
+  const wrap = $("ladder-answers");
+  wrap.innerHTML = "";
+  makeChoices(q.a, q.b).forEach(v => {
+    const btn = document.createElement("button");
+    btn.className = "answer-btn"; btn.textContent = v;
+    btn.addEventListener("click", ()=>answerLadder(q, v, btn));
+    wrap.appendChild(btn);
+  });
+}
+function answerLadder(q, v, btn){
+  if(L.answered) return;
+  L.answered = true;
+  const correct = q.a * q.b;
+  L.asked++;
+  const buttons = [...$("ladder-answers").children];
+  buttons.forEach(b => b.disabled = true);
+  if(v === correct){
+    btn.classList.add("correct");
+    L.correct++; L.streak++; L.rung++;
+    updateBestStreak(L.streak);
+    recordCorrect(q.a, q.b);
+    sfx.correct(); confetti(10, btn);
+    paintLadder();
+    checkStreakParty(L.streak);
+    if(L.rung >= LADDER_RUNGS){
+      $("ladder-feedback").textContent = "You reached the castle! 🏰";
+      $("ladder-feedback").classList.add("good");
+      setTimeout(finishLadder, 950);
+    }else{
+      $("ladder-feedback").textContent = ENCOURAGE[Math.floor(Math.random()*ENCOURAGE.length)] + " Up you go! ⬆️";
+      $("ladder-feedback").classList.add("good");
+      setTimeout(renderLadderQ, 850);
+    }
+  }else{
+    btn.classList.add("wrong");
+    buttons.find(b => Number(b.textContent) === correct).classList.add("reveal");
+    L.streak = 0; paintLadder();
+    sfx.wrong();
+    $("ladder-feedback").textContent = "Almost! " + q.a + " × " + q.b + " = " + correct + " 💜 Stay on this step.";
+    $("ladder-feedback").classList.add("oops");
+    setTimeout(renderLadderQ, 1800);
+  }
+}
+function finishLadder(){
+  sfx.fanfare(); confetti(30);
+  showResult({
+    emoji: "🏰",
+    title: "You reached the castle! 👑",
+    msg: "The unicorn climbed all the way up — magical!",
+    stats: "Climbed " + LADDER_RUNGS + " steps • " + L.correct + " of " + L.asked + " right • +" + L.correct + " ⭐",
+    newbest: "",
+    again: ()=>startLadder(L.key)
   });
 }
 

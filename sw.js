@@ -1,5 +1,5 @@
 /* Unicorn Times Tables — service worker (offline after first load) */
-const CACHE = "unicorn-tables-v1";
+const CACHE = "unicorn-tables-v2";
 const CORE = [
   "./",
   "./index.html",
